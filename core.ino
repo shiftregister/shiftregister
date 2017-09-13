@@ -1,7 +1,22 @@
 /*
-- read and write single core function 
 
-  read= 
+TODO:
+
+- re-check all pin assigns and logic-DONE
+- re-test muon - 1 on Y never fires = 7th on top now but doesn't seem to have a problem with connections or?
+
+- is it firing or - reversed connector on arduino and same problem on 6 so is likely tube//no change on replacement...
+- fixed with new 74HC14! DONE
+
+ ////WED 13/9 PM: muon all workings
+
+- test cores with new code - basics of read and write...
+- put new core code in interrupt
+- scanning of cores and serial out
+
+/////
+
+- read and write single core function 
 
 - parse incoming data for muon events
 
@@ -42,24 +57,21 @@ this is for test code: sense is on PORTB 8-13 - so pin 8
 byte enable_pins_x[8]={4,5,5,3, 3,4,5,6}; // E,E,G,E, H,H,H,H // digital pins 2-9
 byte enable_port_x[8]={4,4,5,4, 6,6,6,6};
 byte enable_pins_y[8]={4,5,6,7, 0,1,2,3}; // B,B,B,B, D,D,D,D // digital pins 10,11,12,13 comm 21,20,19,18
-byte enable_port_y[8]={1,1,1,1, 3,3,3,3};
+byte enable_port_y[8]={1,1,1,1, 3,3,3,3}; // checked!
 
 // sense will be: say 14 = PJ1
 
-// DO as end connector - working from top left down:
+// Arduino end double row connector - working from top left down:
 
 byte hi_x_pins[8]= {0,2,4,6, 7,5,3,1};  // A,A,A,A, C,C,C,C // middle left to right HIX7-HIX0 on core board. top left on arduino 
 byte hi_x_port[8]= {0,0,0,0, 2,2,2,2};
 byte low_x_pins[8]={7,1,7,5, 3,1,3,1}; // D,G,L,L, L,L,B,B// LOX7-LOX0
-byte low_x_port[8]={3,5,7,7, 7,7,1,1};
+byte low_x_port[8]={3,5,7,7, 7,7,1,1}; // checked!
 
 byte hi_y_pins[8]= {1,3,5,7, 6,4,2,0}; // A,A,A,A, C,C,C,C// lower left to right HIY7-HIY0. top right down on arduino
 byte hi_y_port[8]= {0,0,0,0, 2,2,2,2};
 byte low_y_pins[8]={2,0,6,4, 2,0,2,0}; // G,G,L,L, L,L,B,B // LOY7-LOY0
-byte low_y_port[8]={5,5,7,7, 7,7,1,1};
-
-// so for a write 1 we want hi_x + hi_y =1, enable x and y
-// for a write 0 we want lo_x + lo_y =1, enable x and y
+byte low_y_port[8]={5,5,7,7, 7,7,1,1}; // checked
 
 //#define  PULSE  6 
 #define  DELAY  10
@@ -95,7 +107,6 @@ ISR (PCINT2_vect) // handle pin change interrupt for D0 to D7 here - also for PO
    }
  }
 
-
 void setup() {
   Serial.begin(9600);
   //  DDRD = DDRD | 0xFC;  // D2-D7 are outputs - so far these just for testings
@@ -110,7 +121,9 @@ void setup() {
   
   // all outputs for core enables, hi/lo x and hi/lo y -
   // and set these to 0
+  // with 0=A,1=B,2=C,3=D,4=E,5=G,6=H,7=L
   DDRA=255; PORTA=0;
+  DDRB=255; PORTB=0;
   DDRC=255; PORTC=0;
   DDRD=255; PORTD=0;
   DDRE=255; PORTE=0; // this works for serial
@@ -162,6 +175,7 @@ inline byte pulser(byte x, byte y, byte what){
 
   if (what==1){
 // so for a write 1 we want hi_x + hi_y =1
+//byte hi_x_port[8]= {0,0,0,0, 2,2,2,2};
     switch(hi_x_port[x]) {
     case 0:
       PORTA|=1<<hi_x_pins[x];
@@ -169,6 +183,8 @@ inline byte pulser(byte x, byte y, byte what){
     case 2:
       PORTC|=1<<hi_x_pins[x];
     }
+
+    // byte hi_y_port[8]= {0,0,0,0, 2,2,2,2};
 
     switch(hi_y_port[y]) {
     case 0:
@@ -181,6 +197,7 @@ inline byte pulser(byte x, byte y, byte what){
   else
     {
 // for a write 0 we want lo_x + lo_y =1
+//byte low_x_port[8]={3,5,7,7, 7,7,1,1}; // checked!
     switch(low_x_port[x]) {
     case 1:
       PORTB|=1<<low_x_pins[x];
@@ -192,8 +209,9 @@ inline byte pulser(byte x, byte y, byte what){
       PORTG|=1<<low_x_pins[x];
       break;
     case 7:
-      PORTG|=1<<low_x_pins[x];
+      PORTL|=1<<low_x_pins[x];
     }
+    //byte low_y_port[8]={5,5,7,7, 7,7,1,1}; // checked
 
     switch(low_y_port[y]) {
     case 1:
@@ -210,6 +228,9 @@ inline byte pulser(byte x, byte y, byte what){
   
   // set enable on for x and for y
 // with 0=A,1=B,2=C,3=D,4=E,5=G,6=H,7=L
+
+//byte enable_port_x[8]={4,4,5,4, 6,6,6,6};
+//byte enable_port_y[8]={1,1,1,1, 3,3,3,3}; // checked!
 
   switch(enable_port_x[x]) {
   case 4: // PORTE - set bit
@@ -295,7 +316,7 @@ inline byte pulser(byte x, byte y, byte what){
       PORTG&=~(1<<low_x_pins[x]);
       break;
     case 7:
-      PORTG&=~(1<<low_x_pins[x]);
+      PORTL&=~(1<<low_x_pins[x]);
     }
 
     switch(low_y_port[y]) {
@@ -309,32 +330,23 @@ inline byte pulser(byte x, byte y, byte what){
       PORTL&=~(1<<low_y_pins[y]);
     }     
 
-    }
-
-
-  
-  return smpl;
+    }  
+    sDelay(DELAY);
+    return smpl;
 }
 
 void flipper (byte x, byte y){
 
   // sense output and flip it so do write again if there is no sense out
-  // if we write 1 and was a 0 then we sense flip =0
+  // if we write 1 and was a 0 then we sense flip =0 so we don't flip
   // if we write 1 and was a 1 then we sense no flip so then we need to flip it - write a 0
 
   if (pulser(x,y,1)==1) pulser(x,y,0); // is a flip a 1 or a 0? a 0 I think so...
   
 }
 
-
-char inData[80];
-byte coredata[2];
-byte index = 0;
-
     void loop() {
       byte posx, posy=0;
-
-
       byte x, y;
       
       if (pulsed==1 && xcc>0 && ycc>0){
@@ -362,19 +374,21 @@ byte index = 0;
       pulsed=0;
       posx-=1; posy-=1;
       // test code to print where muon is x and y
+
       
       Serial.print(posx);
       Serial.print(":");
       Serial.print(posy);
       Serial.println("");
-
+      
+      
       // flip the bit so read and then write at posx and posy
-
-      flipper(posx, posy); 
+      // this should be in the interrupt
+      
+      //      flipper(posx, posy); 
 
       }
-      
-
+      //      if ((255-PINF)&64) Serial.println("XXXXXXXXXXXXXXX"); // testingsxxx
       
       // - scan full x and y every x seconds and output this data via serial to PI
 

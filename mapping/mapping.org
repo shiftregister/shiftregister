@@ -1,0 +1,210 @@
+#+TITLE: QGIS Mapping Notes
+#+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate
+#+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
+#+TAGS:       Write(w) Update(u) Fix(f) Check(c)  noexport(n)
+#+CATEGORY:   index
+#+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:nil -:nil f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
+#+LINK_HOME: /org
+#+AUTHOR: ShiftRegister
+
+\includegraphics[width=20em]{../sub_test2crop.png}
+
+* how to go to a location
+
+do we need to make csv file and load it under "add delimited text layer" (big quote mark icon)?
+
+eg. messene.csv :
+
+MESSENE, 21.92, 37.175
+
+name, long, lat = x,y
+
+* how to make graphic overlays from other map sources
+
+Using geo-referencing (plugin?) as very well detailed here:
+
+http://fredgibbs.net/tutorials/qgis/overlaying-historic-maps-with-qgis.html
+
+[ Don't use - Add raster layer]
+
+- Raster menu -> Georeferencer (check plugins)
+- Upper left icon
+- Add points icon to begin add points across both image and map
+
+When you’ve entered 5-7 points, click the yellow gear icon to adjust
+the Transformation Settings. For Transformation type, choose “Thin
+Plate Spline”; for Resampling methods, choose “Cubic Spline”. You can
+read about what these do if you want to remember why you hate math.
+
+Click the folder or dots icon to the right of the “Output Raster”
+input box and choose a filename and directory to save the warped
+file. Saving the file makes it easily available for reuse without
+having to repeat the georeferencing process—super helpful for when
+you’ve spent a lot of time aligning many points.
+
+Make sure the box for “Use 0 for transparency when needed” is checked.
+
+After you’ve finished with the transformation settings, click the
+green arrow icon (right next to the load image icon).
+
+- ?confusing as we now use pseudo mercator to make it work?
+
+* how to add satellite and map layers
+
+Web->Openlayers plugin-> Googlemaps
+
+* how to draw points, draw lines between points (python) and load in these lines
+
+** points
+
+Add delimited text layers:
+
+eg. list of German nuclear power stations: germany_nuclear_sites.csv
+
+VAK, Kahl am Main, 50.0591294, 8.9871812, BWR, 15, 1960–1985, 
+
+** linestrings
+
+eg. tld_europe_leys_linestrings_trimmedforcloseness
+
+0|LINESTRING(12.583 55.667,-3.683 40.4,6.13 49.612)
+
+1|LINESTRING(24.934 60.176,24.1 56.95,24.728 59.434)
+
+
+Add delimited text layers
+
+Custom delimiter: | 
+
+Geometry definition: WKT Well Known Text
+
+Geometry Field; LINESTRING blah
+
+WGS84
+
+* interface with pyephem...
+
+See: solstice.py, newephem.py
+
+- solstice.py: there are variations to compute next 1000 years of
+  solstice sun rises for different locations, compute sun movements in
+  next 24 hours, compute next 30 sunrises - as linestrings for our
+  observer point which we can then view in qgis
+
+- newephem.py: looks just like the first version of this!
+
+* other bits of software we use for processings
+
+unmap.py, unmap2.py: for data from https://raw.githubusercontent.com/52vis/2016-15/master/sites.json
+
+kmltocsv.py: convert kml to csv
+
+* how to export images?
+
+Save as image
+
+What are other print options?
+
+* bordeaux notes - for entropy box and mappings 
+
+- note GPS has red without label on top and is 2nd from left,
+  coincidence has black to top (check) - FIXED!
+
+forbordeaux.brd
+
+- note that GPS device (?) has LED which lights so we can see that power is OK
+
+- logging software is in:
+
+/root/projects/archived/bordeaux/new_skry
+
+* other softwares for plotting the entropy stuff
+
+... and our scripts:
+
+gpsrng2.py: just for low entropy sites
+
+gpsrngcum.py: Cumulative deviation mapped against p=0.05 probability.
+
+gpsrng.py: simple plotting lat-x, long-y, z, zz
+
+muon_entropy.py: for muons
+
+* how to work with format straight from gps
+
+- gps and particle sensor
+
+gpsdevice.py and airsds.py to integrate and test data with qgis:
+
+: python airsdsandgps.py
+
+* how to use our gps data in the qgis?
+
+Eg. from submarine21052017: 
+
+4451.365870,00033.80021,116,0
+
+Bordeaux is 44.836151 (latitude-y), -0.580816 (longitude-x) ...
+
+so for qgis these are reversed...
+
+NMEA example:
+
+3404.7041778 is the latitude in the DDMM.MMMMM format. Decimal places are variable.
+
+N denotes north latitude.
+
+07044.3966270 is the longitude in the DDDMM.MMMMM format. Decimal places are variable.
+
+- how to convert this:
+
+: python gpstoqgis.py filename
+
+and can load straight into qgis with x as first field and y as second
+
+It is easy to confuse X and Y coordinates. Latitude specifies the
+north-south position of a point and hence it is a Y
+coordinate. Similarly Longitude specifies the east-west position of a
+point and it is a X coordinate.
+
+also be aware of east and west and change 
+
+- how to add extra layer of information??
+
+shapefiles? - we can save as shapefile from our csv of gps data
+
+https://www.qgistutorials.com/en/docs/interpolating_point_data.html
+
+- interpolation is key question - how else we can do this to make a contour...
+
+we need to have gpsbabel installed for gps tools plugin in qgis
+
+* drawing shapefiles
+
+We can add points, lines with:
+
+- new shapefile layer (point, line or polygon), toggle edit layer icon, add feature, untoggle to save change
+
+https://docs.qgis.org/2.8/en/docs/training_manual/create_vector_data/create_new_vector.html
+
+https://github.com/mtop/speciesgeocoder/wiki/Tutorial-for-creating-polygons-in-QGIS
+
+http://geo.nls.uk/urbhist/guides_vectorlayerqgis.html
+
+
+* data sets and resources 
+
+- see: https://docs.google.com/document/d/1etyXS8oWM3yF6MfpBPuwxvhmll_qahWjhXwrRWV213I/edit#
+
+* single repository/howtos on shiftregister github: 
+
+https://github.com/shiftregister/shiftregister/tree/master/mapping
+
+* other links
+
+https://www.qgistutorials.com/en/docs/importing_spreadsheets_csv.html
+
+https://planet.qgis.org/planet/tag/terrain%20analysis/
+
+http://www.qgistutorials.com/en/docs/georeferencing_basics.html
+

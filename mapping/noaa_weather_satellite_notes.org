@@ -1,0 +1,330 @@
+#+TITLE: NOAA weather satellite notes
+#+STARTUP:    align fold nodlcheck hidestars oddeven lognotestate
+#+SEQ_TODO:   TODO(t) INPROGRESS(i) WAITING(w@) | DONE(d) CANCELED(c@)
+#+TAGS:       Write(w) Update(u) Fix(f) Check(c)  noexport(n)
+#+CATEGORY:   index
+#+OPTIONS:   H:3 num:nil toc:nil \n:nil @:t ::t |:t ^:nil -:nil f:t *:t TeX:t LaTeX:t skip:nil d:(HIDE) tags:not-in-toc
+#+LINK_HOME: /org
+#+AUTHOR: ShiftRegister
+
+\includegraphics[width=22em]{noaa19.jpg}
+
+NOAA: National Oceanic and Atmospheric Administration
+
+*Gathering data to monitor and understand our dynamic planet*
+
+NOAA Satellites (NOAA-15, 18, and 19) transmit APT (Automatic Picture
+Transmission) signals as they fly overhead.
+
+The recpetion and decoding of these signals can act as a foundation
+for listening to other satellites.
+
+** What is APT ?
+
+The NOAA polar satellites series send continuous APT
+(Automatic Picture Transmission) signal and HRPT (high res multi
+channel) signal. HRPT reception requires a more complex system with a
+Yagi motorized tracking antenna on 1.6 Ghz range.  The APT signal is
+analog and can be "heard" with a simple radio equipment on 137 - 138
+MHz in FM mode. Notice that the bandwidth required is about 30-40kHz,
+which is not suitable with the Narrow FM standard (5-15kHz) or the
+Wide FM standard (~150kHz). The radio output audio signal is send to
+the computer sound card line-in and processed by the software. The
+audio signal contains a 2400 Hz sub carrier and has a special
+"signature".  
+
+The raw image consists of a visible channel + infrared channel,
+bordered with telemetry calibration datas. The infrared channel can be
+used for temperature reading and false color image computing. The
+temperature range is -60°C to +39°C.
+
+Basically, APT is a sort of FAX image transmission. Pixel size is
+around 4 km in APT format. HRPT has a resolution of 1.1 km per pixel.
+
+** More information on the NOAA satellites we observe?
+
+\includegraphics[width=24em]{NOAA-N15.jpg}
+
+NOAA 15 (designated NOAA-K before launch) is one of the NASA-provided
+TIROS series of weather forecasting satellite run by NOAA. The
+satellite is placed in a sun-synchronous orbit, 807 km above the
+Earth, orbiting every 101 minutes. It hosts the AMSU-A and AMSU-B
+instruments, the AVHRR and High Resolution Infrared Radiation Sounder
+(HIRS/3) instruments, as well as a Space Environment Monitor
+(SEM/2). APT transmission frequency is 137.62 MHz. Due to problems
+with the S-band transmitter high-gain antennas, NOAA-15 has been
+configured for High Resolution Picture Transmission using the S-Band
+Transmitter #2 (1702.5 MHz) omnidirectional antenna.
+
+NOAA 18, known before launch as NOAA-N, is a weather forecasting
+satellite run by NOAA. NOAA-N (18) was launched into a sun-synchronous
+orbit at an altitude of 854 km above the Earth, with an orbital period
+of 102 minutes. It hosts the AMSU-A, MHS, AVHRR, Space Environment
+Monitor SEM/2 instrument and High Resolution Infrared Radiation
+Sounder (HIRS) instruments, as well as the SBUV/2 ozone-monitoring
+instrument. NOAA 18 is the first NOAA POES satellite to use MHS in
+place of AMSU-B. APT transmission frequency is 137.9125 MHz (NOAA-18
+changed frequencies with NOAA-19 on June 23, 2009).
+
+NOAA 19 is the fifth in a series of five Polar-orbiting Operational
+Environmental Satellites (POES) with advanced microwave sounding
+instruments that provide imaging and sounding capabilities. Circling
+530 statute miles [850 km] above Earth and completing a revolution
+every 100 minutes, the NOAA-N Prime will operate in the so-called
+"afternoon" polar orbit to replace NOAA-18 and its degraded
+instruments. The orbit crosses the equator from south to north at 2
+p.m. on the trips around the planet. NOAA-N Prime is outfitted with
+instruments that provide imagery, atmospheric temperature and humidity
+profiles, and land and ocean surface temperature observations, all of
+which are key ingredients for weather forecasting. In addition, the
+information generates decades-long databases for climate monitoring
+and global change studies.
+
+We will receive automatic picture transmissions (APT) from NOAA
+weather satellites using a cheap RTL-SDR (RTL2832U)
+software-defined-radio dongle and free software to track (gpredict),
+tune into and record (gqrx), convert (sox) and finally decode/image
+(wxtoimg, xwxtoimg) these transmissions.
+
+NOAA APT transmissions are analogue transmissions. The data coming from
+the imaging sensors is used to amplitude modulate a 2.4 kHz
+sub-carrier, which is then used to FM modulate the VHF carrier at
+137.x MHz. The FM deviation is 17 kHz and using the Carson bandwidth
+rule we get a channel bandwidth of
+
+BW = 2 × (17 + 2.4) kHz = 38.8 kHz
+
+Hence the requirement for 40 kHz bandwidth. In fact, a few kHz more
+will not hurt but allow to track the signal during the whole pass
+without any active Doppler tuning.
+
+** which others could we listen to, or decode or otherwise observe?
+
+*** EISCAT
+
+EISCAT (European Incoherent Scatter Scientific Association) operates
+three incoherent scatter radar systems, at 224 MHz, 931 MHz in
+Northern Scandinavia and one at 500 MHz on Svalbard, used to study the
+interaction between the Sun and the Earth as revealed by disturbances
+in the ionosphere and magnetosphere.
+
+At Ramfjordmoen, near Tromsø, Norway the EISCAT facility has: a
+Ionospheric heater with HF radar capabilities; a tristatic VHF radar
+at 224 MHz with a 4 x 30m-by-40m parabolic cylinder antenna; and a
+monostatic UHF radar at 931 MHz with a 32 m parabolic dish
+antenna. From the start in 1981 the UHF radar was a steerable
+tristatic system, but due to interference from telecommunications in
+the 930 MHZ band, the remote receivers were converted to receive the
+VHF signal during 2012.
+
+*** Others
+
+https://www.rtl-sdr.com/receiving-dead-satellites-rtl-sdr/
+
+ISS: 145.825 MHz 
+
+* HOWTO
+
+\includegraphics[width=24em]{test2cropsm.png}
+
+** Our antenna
+
+\includegraphics[width=24em]{antsmall.jpg}
+
+A 120 degrees dipole of two 53.4 cm aluminium rods of 3mm thickness
+following:
+
+https://www.rtl-sdr.com/simple-noaameteor-weather-satellite-antenna-137-mhz-v-dipole/
+
+Screwed into terminal block (53.4 is full length including end
+bend). RG-58 cable and crimped SMA plug.
+
+We are using it pointing south.
+
+A more fancy antenna (QFH) here:
+
+http://www.instructables.com/id/NOAA-Satellite-Signals-with-a-PVC-QFH-Antenna-and-/
+
+** Tracking
+
+gpredict works well
+
+Set up:
+
+Edit->Update TLE->from network
+
+Edit->Preferences->Groundstations // to add where we are
+
+We look at NOAA 15, 18, 19: These are added in File->new Module
+
+Tracking and images also on: http://www.n2yo.com/?s=33591
+
+** RTL dongles
+
+RTL2832, 2560000 sample rate
+
+** Reception and post process - rtl_fm // gqrx
+
+file:gqi2.png
+
+*NOAA 15 => 137.620 MHz*
+
+*NOAA 18 => 137.9125 MHz*
+
+*NOAA 19 => 137.1 MHz*
+
+Refs: 
+
+https://www.teske.net.br/lucas/2016/02/recording-noaa-apt-signals-with-gqrx-and-rtl-sdr-on-linux/
+
+http://oz9aec.net/radios/gnu-radio/noaa-apt-reception-with-gqrx-and-rtlsdr
+
+: pulseaudio -vvv 
+
+: gqrx
+
+Use narrow FM and 17k APT no tau in custom settings there
+
+*REMEMBER to always expand the filter by hand (click and drag) = user 50k*
+
+*And set directory where it is recording audio.*
+
+Gain for rtl is full 50db.
+
+DC REM // IQ BALANCE // NO AGC
+
+Press record.
+
+Afterwards process to 11025 samplerate with sox:
+
+: sox gqrx_20180428_155928_137912500.wav satnoaaQQ_1.wav rate 11025 
+
+** wxtoimg
+
+: wxtoimg -a satnoaaQQ_1.wav satnoaaQQ_1.png
+
+** how to do mapping?
+
+There are options in xwxtoimg
+
+** Image enhancements
+
+IR imaging?
+
+http://oz9aec.net/radios/gnu-radio/noaa-apt-reception-with-gqrx-and-rtlsdr
+
+* Older archived notes which might be helpful
+
+** why isn't it working?
+
+antenna, receiver - to test?, receiver settings eg. less gain as in:
+
+installing gqrx to test:
+
+: cmake .. -DLINUX_AUDIO_BACKEND=Gr-audio 
+
+to get rid of pulseaudio which was creating problems and hopefully now default to ALSA
+
+but we had to install gr-osmosdr which might cause problems with rtl blah...
+
+all a mess!
+
+: pulseaudio -vvv 
+
+seems to work with gqrx - tested with tiny antenna and 90.2 MHz WFM demodulation
+
+which way is south?
+
+Use the proper FM deviation (17 kHz) and filter width (45 kHz).
+Use proper gain setting for max SNR. With the latest rtl-sdr I had to use max gain setting.
+Use a sample rate that works well with your device on your computer (I used 1024 ksps).
+
+Start by tuning the FCD PLL to 23 kHz above or below the satellite
+frequency. For example, NOAA-18 transmits on 137.9125 MHz and I tuned
+the FCD to 137.935 MHz. Then tune the channel filter so that the RX
+frequency will correspond to the satellite frequency
+
+
+    NOAA 15 => 137.620 MHz + 23k = 137.643
+    NOAA 18 => 137.9125 MHz
+    NOAA 19 => 137.1 MHz + 23khz = 137.123
+
+try: narrow FM and 17k APT no tau
+filter = user 50k
+
+for NOAA 15 we have success - gain is full on - pointing south outside on the tables with basic dipole antenna...
+
+we don't use the offset
+
+** older notes: 
+
+apt-get remove librtlsdr0 
+
+SDR hardware, what software? wx2img xwxtoimg: http://www.wxtoimg.com/downloads/
+
+use of rtl-sdr or gprx?
+
+http://www.instructables.com/id/Raspberry-Pi-NOAA-Weather-Satellite-Receiver/
+
+but sox command doesn't work so use:
+
+: rtl_fm -f 137620000 -s 11025 -g 29 -p 22 - | sox -t raw -e signed -c 1 -b 16 -r 11025 - recording.wav
+
+aptdec doesn't compile at all: 
+
+https://raspberrypi.stackexchange.com/questions/14433/record-audio-from-rtl-sdr-using-usb-dongle
+
+gprx we have problems with pulseaudio
+
+alts:
+
+fecha=$(date +%Y%m%d-%H%M)
+
+timeout 900 rtl_fm -f 137.100M -s 48000 -g 44 -p 52 -F 9 -A fast -E DC NOAA19-$fecha.raw
+
+To process:
+
+: sox -t raw -r 48000 -es -b16 -c1 -V1 NOAA19-$fecha.raw NOAA19-$fecha.wav rate 11025
+
+Then to set the same date on the wav as on the raw:
+
+touch -r /jffs/rtl/NOAA/NOAA19-$fecha.raw /jffs/rtl/NOAA/NOAA19-$fecha.wav
+
+http://kmkeen.com/rtl-demod-guide/
+
+http://www.instructables.com/id/NOAA-Satellite-Signals-with-a-PVC-QFH-Antenna-and-/
+
+http://www.instructables.com/id/NOAA-Satellite-Signals-with-a-PVC-QFH-Antenna-and-/
+
+: /usr/local/bin/wxmap -T "${1}" -H $4 -p 0 -l 0 -o $PassStart ${3}-map.png
+
+: /usr/local/bin/wxtoimg -m ${3}-map.png -e ZA $3.wav $3.png
+
+how to make QFH antenna: 3mm alu rods, block terminals as in pdf
+
+see also: http://www.alternet.us.com/?p=1461
+
+* Making this live usb distribution
+
+redo/installs 
+
+: chroot chroot bash
+
+:  rm live_boot/image/filesystem.squashfs
+
+: mksquashfs \                                                                                                                                                                                                        ~
+    $HOME/live_boot/chroot \
+    $HOME/live_boot/image/filesystem.squashfs \
+    -noappend \
+    -e boot
+
+:  mount /dev/sdb1 /mnt/usb    
+
+: rsync -rv $HOME/live_boot/image/ /mnt/usb/live/
+
+: umount /mnt/usb
+
+older syslinux version: https://archive.is/8tjE8
+
+TODO: copy as backup to an image file with dd
+

@@ -1,0 +1,50 @@
+//#define F_CPU 8000000UL
+
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <math.h>
+#include <avr/io.h>
+#include <avr/eeprom.h>
+#include <avr/interrupt.h>
+#include <avr/pgmspace.h>
+#include <util/delay.h>
+#include <avr/sleep.h>
+#include <avr/wdt.h>
+#include <inttypes.h>
+#include <avr/pgmspace.h>
+
+void setup() {
+  Serial.begin(115200);
+}
+
+
+void loop() {
+  int x,y, value;
+  //  while(1){
+  Serial.println("STARTASM");
+  
+    // testings
+  for (y=0;y<125;y++){
+  for (x=0;x<32000;x++){
+      value=x&255;
+      // LDI R16, x
+      // CLR R0-15
+      // MOV R16, R0-15
+
+     
+      asm volatile("mov __tmp_reg__, %A0" "\n\t"
+           "mov %A0, %D0" "\n\t"
+           "mov %D0, __tmp_reg__" "\n\t"
+           "mov __tmp_reg__, %B0" "\n\t"
+           "mov %B0, %C0" "\n\t"
+           "mov %C0, __tmp_reg__" "\n\t"
+           : "+r" (value));
+    }
+  }
+  Serial.println("ENDASM");
+
+    _delay_ms(1000); // how long?
+  }
+//}
+

@@ -169,6 +169,8 @@ point and it is a X coordinate.
 
 also be aware of east and west and change 
 
+
+
 - how to add extra layer of information??
 
 shapefiles? - we can save as shapefile from our csv of gps data
@@ -178,6 +180,16 @@ https://www.qgistutorials.com/en/docs/interpolating_point_data.html
 - interpolation is key question - how else we can do this to make a contour...
 
 we need to have gpsbabel installed for gps tools plugin in qgis
+
+** and for lines between gps points
+
+we add extra text field when we now process eg. in randomwalk.py
+
+and then use  Points2One plug-in
+
+- we also needed to add quickmapservices plugin and once installed add
+contributed services (within settings) for google sattelite and other
+maps.
 
 * drawing shapefiles
 
